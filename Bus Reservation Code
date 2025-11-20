@@ -1,0 +1,221 @@
+# Simple Beginner-Friendly Bus Reservation System
+# No JSON, No OS module — everything runs in memory
+
+class BusReservationSystem:
+    def __init__(self):
+        self.buses = {}
+        self.reservations = {}
+        self.reservation_counter = 1
+        self.initialize_buses()
+
+    # -------------------------------------------------------------
+    # INITIAL BUSES
+    # -------------------------------------------------------------
+    def initialize_buses(self):
+        self.buses = {
+            "B001": {
+                "name": "Express Deluxe",
+                "route": "City A to City B",
+                "departure": "08:00",
+                "arrival": "12:00",
+                "total_seats": 40,
+                "available_seats": list(range(1, 41)),
+                "fare": 500
+            },
+            "B002": {
+                "name": "Luxury Bus",
+                "route": "City C to City D",
+                "departure": "14:30",
+                "arrival": "18:45",
+                "total_seats": 35,
+                "available_seats": list(range(1, 36)),
+                "fare": 750
+            },
+            "B003": {
+                "name": "Comfort Bus",
+                "route": "City E to City F",
+                "departure": "09:15",
+                "arrival": "12:30",
+                "total_seats": 25,
+                "available_seats": list(range(1, 26)),
+                "fare": 600
+            }
+        }
+
+    # -------------------------------------------------------------
+    # DISPLAY AVAILABLE BUSES
+    # -------------------------------------------------------------
+    def display_buses(self):
+        print("\n=== AVAILABLE BUSES ===")
+        for bus_id, b in self.buses.items():
+            print(f"\nBus ID: {bus_id}")
+            print(f"Name: {b['name']}")
+            print(f"Route: {b['route']}")
+            print(f"Time: {b['departure']} - {b['arrival']}")
+            print(f"Fare: {b['fare']}")
+            print(f"Available Seats: {len(b['available_seats'])}")
+
+    # -------------------------------------------------------------
+    # SEARCH BUS BY DESTINATION
+    # -------------------------------------------------------------
+    def search_by_destination(self, destination):
+        print(f"\nSearching for: {destination}")
+        found = False
+        for bus_id, b in self.buses.items():
+            if destination.lower() in b['route'].lower():
+                found = True
+                print(f"\nBus ID: {bus_id}")
+                print(f"Name: {b['name']}")
+                print(f"Route: {b['route']}")
+                print(f"Available Seats: {len(b['available_seats'])}")
+        if not found:
+            print("No buses found!")
+
+    # -------------------------------------------------------------
+    # BOOK ONE OR MULTIPLE SEATS
+    # -------------------------------------------------------------
+    def book_ticket(self):
+        self.display_buses()
+
+        bus_id = input("\nEnter Bus ID: ").strip().upper()
+        if bus_id not in self.buses:
+            print("Invalid Bus ID!")
+            return
+
+        bus = self.buses[bus_id]
+        print(f"Available Seats: {bus['available_seats']}")
+
+        try:
+            count = int(input("How many seats do you want to book? "))
+        except:
+            print("Invalid number!")
+            return
+
+        seats_to_book = []
+        for i in range(count):
+            try:
+                seat = int(input(f"Enter seat number {i+1}: "))
+                if seat not in bus['available_seats']:
+                    print("This seat is not available!")
+                    return
+                seats_to_book.append(seat)
+            except:
+                print("Invalid seat number!")
+                return
+
+        name = input("Passenger Name: ")
+        age = input("Age: ")
+        phone = input("Phone: ")
+
+        reservation_id = str(self.reservation_counter)
+        self.reservation_counter += 1
+
+        self.reservations[reservation_id] = {
+            "bus_id": bus_id,
+            "passenger": name,
+            "age": age,
+            "phone": phone,
+            "seats": seats_to_book,
+            "fare": bus['fare'] * len(seats_to_book),
+            "status": "Confirmed"
+        }
+
+        for seat in seats_to_book:
+            bus['available_seats'].remove(seat)
+
+        print("\nTicket Booked Successfully!")
+        self.print_ticket(reservation_id)
+
+    # -------------------------------------------------------------
+    # CANCEL TICKET
+    # -------------------------------------------------------------
+    def cancel_ticket(self):
+        rid = input("Enter Reservation ID: ")
+        if rid not in self.reservations:
+            print("Invalid Reservation ID!")
+            return
+
+        r = self.reservations[rid]
+        if r['status'] == "Cancelled":
+            print("This ticket is already cancelled!")
+            return
+
+        self.print_ticket(rid)
+        confirm = input("Cancel this reservation? (yes/no): ").lower()
+
+        if confirm == "yes":
+            bus = self.buses[r['bus_id']]
+            for seat in r['seats']:
+                bus['available_seats'].append(seat)
+            bus['available_seats'].sort()
+
+            r['status'] = "Cancelled"
+            print("Ticket Cancelled Successfully!")
+        else:
+            print("Cancellation Aborted!")
+
+    # -------------------------------------------------------------
+    # VIEW TICKET
+    # -------------------------------------------------------------
+    def view_ticket(self):
+        rid = input("Enter Reservation ID: ")
+        if rid not in self.reservations:
+            print("Ticket Not Found!")
+            return
+        self.print_ticket(rid)
+
+    # -------------------------------------------------------------
+    # PRINT TICKET
+    # -------------------------------------------------------------
+    def print_ticket(self, rid):
+        r = self.reservations[rid]
+        bus = self.buses[r['bus_id']]
+
+        print("\n======= BUS TICKET =======")
+        print(f"Reservation ID: {rid}")
+        print(f"Passenger: {r['passenger']}")
+        print(f"Age: {r['age']}")
+        print(f"Phone: {r['phone']}")
+        print(f"Bus: {bus['name']}")
+        print(f"Route: {bus['route']}")
+        print(f"Seats: {r['seats']}")
+        print(f"Total Fare: {r['fare']}")
+        print(f"Status: {r['status']}")
+        print("==========================")
+
+    # -------------------------------------------------------------
+    # MENU
+    # -------------------------------------------------------------
+    def menu(self):
+        while True:
+            print("\n==== BUS RESERVATION SYSTEM ====")
+            print("1. View Available Buses")
+            print("2. Search by Destination")
+            print("3. Book Ticket")
+            print("4. View Ticket")
+            print("5. Cancel Ticket")
+            print("6. Exit")
+
+            choice = input("Enter choice: ")
+
+            if choice == '1':
+                self.display_buses()
+            elif choice == '2':
+                d = input("Enter destination: ")
+                self.search_by_destination(d)
+            elif choice == '3':
+                self.book_ticket()
+            elif choice == '4':
+                self.view_ticket()
+            elif choice == '5':
+                self.cancel_ticket()
+            elif choice == '6':
+                print("Thank you for using the system!")
+                break
+            else:
+                print("Invalid choice!")
+
+
+# Run Program
+if __name__ == "__main__":
+    BusReservationSystem().menu()
