@@ -1,0 +1,132 @@
+# ------------------------------------------------------
+# MODULE 1 : BUS MANAGEMENT
+# ------------------------------------------------------
+buses = {
+    101: {"route": "City A to City B", "seats": 40, "available": 40},
+    102: {"route": "City B to City C", "seats": 45, "available": 45},
+    103: {"route": "City A to City C", "seats": 50, "available": 50}
+}
+
+# -----------------------------------------------------
+# MODULE 2 : PASSENGER MANAGEMENT
+# -----------------------------------------------------
+passengers = {}    #passenger_id:{"name":..., "age":...}
+pid_counter = 1
+
+# ----------------------------------------------------
+# MODULE 3 : RESERVATION MANAGEMENT
+# ----------------------------------------------------
+reservations = {}       #ticket_no: {"bus_id":..., "passenger_id":...}
+ticket_counter = 1
+
+def add_passenger(name, age):
+    global pid_counter
+    passengers[pid_counter] = {"name": name, "age": age}
+    pid_counter += 1
+    return pid_counter -1
+
+def reserve_seat(bus_id, passenger_id):
+    global ticket_counter
+
+    if bus_id not in buses:
+        return None
+
+    if buses[bus_id]["available"] > 0:
+        buses[bus_id]["available"] -=1
+
+        reservations[ticket_counter] = {
+           "bus_id": bus_id,
+           "passenger_id": passenger_id 
+        }
+        ticket_counter +=1 
+        return ticket_counter -1
+    else:
+        return -1
+
+
+# ---------------------------------------
+# MODULE 4 : CANCELLATION MODULE
+# ---------------------------------------
+def cancel_ticket(ticket_no):
+   if ticket_no in reservations:
+         bus_id = reservations[ticket_no]["bus_id"]
+
+         #increase seat availability
+         buses[bus_id]["available"] += 1
+
+         #remove reservation
+         del reservations[ticket_no]
+         return True
+
+   return False
+
+
+# ----------------------------------------
+# MODULE 5 : REPORT / DISPLAY MODULE
+# ----------------------------------------
+def show_buses():
+    print("\nAvailable Buses:")
+    for bus_id, info in buses.items():
+        print(f"Bus {bus_id} | {info['route']} | "
+              f"Seats: {info['seats']} | Available: {info['available']}")
+
+def show_reservations():
+    print("\nReservation Details:")
+    if not reservations:
+       print("No reservations.")
+       return
+    for t, info in reservations.items():
+       p = passengers[info["passenger_id"]]
+       print(f"Ticket {t} | Bus {info['bus_id']} | "
+             f"Passenger: {p['name']} ({p['age']})")
+
+
+# ---------------------------------
+# MAIN PROGRAM LOOP
+# ---------------------------------
+while True:
+    print("\n====== BUS RESERVATION MENU ======")
+    print("1. View Buses")
+    print("2. Add Passenger & Reserve Seat")
+    print("3. Cancel Ticket")
+    print("4. View Reservations")
+    print("5. Exit")
+
+    choice = input("Enter choice: ")
+
+    if choice == '1':
+        show_buses()
+
+    elif choice == '2':
+        name = input("Enter passenger name: ")
+        age = int(input("Enter passenger age: "))
+        pid = add_passenger(name, age)
+
+        show_buses()
+        bus_id = int(input("Choose Bus ID: "))
+
+        ticket = reserve_seat(bus_id, pid)
+        if ticket == -1:
+            print("No seats available.")
+        elif ticket is None:
+            print("Invalid Bus ID.")
+        else:
+            print(f"Ticket booked successfully! Ticket No: {ticket}")
+
+
+    elif choice == '3':
+        t = int(input("Enter Ticket No to cancel: "))
+        if cancel_ticket(t):
+            print("Ticket cancelled successfully!")
+        else:
+             print("Invalid ticket number!")
+
+    elif choice == '4':
+        show_reservations()
+
+    elif choice == '5':
+        print("Thank you for using Bus Reservation System!")
+        break
+
+    else: 
+        print("Invalid choice! Try again.")
