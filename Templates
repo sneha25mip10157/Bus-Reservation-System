@@ -1,0 +1,204 @@
+templates/base.html
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Bus Reservation Pro</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <h1><a href="{{ url_for('index') }}">Bus Reservation Pro</a></h1>
+    <nav>
+      <a href="{{ url_for('buses') }}">Buses</a>
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('my_bookings') }}">My Bookings</a>
+        {% if current_user.is_admin %}
+          <a href="{{ url_for('admin_dashboard') }}">Admin</a>
+        {% endif %}
+        <a href="{{ url_for('logout') }}">Logout</a>
+      {% else %}
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('register') }}">Register</a>
+      {% endif %}
+    </nav>
+  </header>
+  <main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-container">
+        {% for cat, msg in messages %}
+          <div class="flash {{ cat }}">{{ msg }}</div>
+        {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer>
+    <small>Bus Reservation Pro • Simple demo app</small>
+  </footer>
+</body>
+</html>
+
+
+templates/index.html
+{% extends 'base.html' %}
+{% block content %}
+<h2>Available Buses</h2>
+<ul>
+  {% for bus in buses %}
+    <li><strong>{{ bus.name }}</strong> — {{ bus.route }} — Seats: {{ bus.available_seats }}/{{ bus.total_seats }} — Fare: ₹{{ bus.fare }} 
+    <a href="{{ url_for('book', bus_id=bus.id) }}">Book</a></li>
+  {% else %}
+    <li>No buses found.</li>
+  {% endfor %}
+</ul>
+{% endblock %}
+
+
+templates/login.html
+{% extends 'base.html' %}
+{% block content %}
+<h2>Login</h2>
+<form method="post">
+  <label>Username: <input name="username" required></label><br>
+  <label>Password: <input name="password" type="password" required></label><br>
+  <button type="submit">Login</button>
+</form>
+{% endblock %}
+
+
+templates/register.html
+{% extends 'base.html' %}
+{% block content %}
+<h2>Register</h2>
+<form method="post">
+  <label>Username: <input name="username" required></label><br>
+  <label>Password: <input name="password" type="password" required></label><br>
+  <button type="submit">Register</button>
+</form>
+{% endblock %}
+
+
+templates/admin_dashboard.html
+{% extends 'base.html' %}
+{% block content %}
+<h2>Admin Dashboard</h2>
+
+<section>
+  <h3>Buses</h3>
+  <a href="{{ url_for('add_bus') }}">Add New Bus</a>
+  <form action="{{ url_for('import_buses') }}" method="post" enctype="multipart/form-data" style="display:inline-block; margin-left:10px;">
+    <input type="file" name="file" accept=".csv" required>
+    <button type="submit">Import Buses (CSV)</button>
+  </form>
+  <table>
+    <tr><th>ID</th><th>Name</th><th>Route</th><th>Seats</th><th>Fare</th><th>Actions</th></tr>
+    {% for b in buses %}
+      <tr>
+        <td>{{ b.id }}</td>
+        <td>{{ b.name }}</td>
+        <td>{{ b.route }}</td>
+        <td>{{ b.available_seats }}/{{ b.total_seats }}</td>
+        <td>₹{{ b.fare }}</td>
+        <td>
+          <a href="{{ url_for('edit_bus', bus_id=b.id) }}">Edit</a>
+          <form action="{{ url_for('delete_bus', bus_id=b.id) }}" method="post" style="display:inline;">
+            <button type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+</section>
+
+<section>
+  <h3>Bookings</h3>
+  <a href="{{ url_for('export_bookings') }}">Export Bookings CSV</a>
+  <table>
+    <tr><th>ID</th><th>User</th><th>Bus</th><th>Seats</th><th>Passenger</th><th>When</th></tr>
+    {% for bk in bookings %}
+      <tr>
+        <td>{{ bk.id }}</td>
+        <td>{{ bk.user.username if bk.user else '—' }}</td>
+        <td>{{ bk.bus.name if bk.bus else '—' }}</td>
+        <td>{{ bk.seats }}</td>
+        <td>{{ bk.passenger_name }}</td>
+        <td>{{ bk.booked_at }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+</section>
+{% endblock %}
+
+
+templates/bus_list.html
+{% extends 'base.html' %}
+{% block content %}
+<h2>Buses</h2>
+<table>
+  <tr><th>Name</th><th>Route</th><th>Seats</th><th>Fare</th><th>Action</th></tr>
+  {% for b in buses %}
+    <tr>
+      <td>{{ b.name }}</td>
+      <td>{{ b.route }}</td>
+      <td>{{ b.available_seats }}/{{ b.total_seats }}</td>
+      <td>₹{{ b.fare }}</td>
+      <td><a href="{{ url_for('book', bus_id=b.id) }}">Book</a></td>
+    </tr>
+  {% endfor %}
+</table>
+{% endblock %}
+
+
+templates/bus_form.html
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ action }} Bus</h2>
+<form method="post">
+  <label>Name: <input name="name" value="{{ bus.name if bus else '' }}" required></label><br>
+  <label>Route: <input name="route" value="{{ bus.route if bus else '' }}" required></label><br>
+  <label>Total seats: <input name="total_seats" value="{{ bus.total_seats if bus else 40 }}" type="number"></label><br>
+  <label>Fare: <input name="fare" value="{{ bus.fare if bus else 0 }}" type="number"></label><br>
+  <label>Departure time: <input name="depart_time" value="{{ bus.depart_time if bus else '' }}"></label><br>
+  <button type="submit">{{ action }}</button>
+</form>
+{% endblock %}
+
+
+templates/book.html
+{% extends 'base.html' %}
+{% block content %}
+<h2>Book: {{ bus.name }}</h2>
+<p>Route: {{ bus.route }} — Seats available: {{ bus.available_seats }} — Fare: ₹{{ bus.fare }}</p>
+<form method="post">
+  <label>Passenger name: <input name="passenger_name" value="{{ current_user.username }}"></label><br>
+  <label>Phone: <input name="passenger_phone"></label><br>
+  <label>Seats: <input name="seats" type="number" min="1" max="{{ bus.available_seats }}" value="1"></label><br>
+  <button type="submit">Confirm Booking</button>
+</form>
+{% endblock %}
+
+
+templates/bookings.html
+{% extends 'base.html' %}
+{% block content %}
+<h2>My Bookings</h2>
+<table>
+  <tr><th>ID</th><th>Bus</th><th>Seats</th><th>Passenger</th><th>Booked at</th></tr>
+  {% for b in bookings %}
+    <tr>
+      <td>{{ b.id }}</td>
+      <td>{{ b.bus.name if b.bus else '' }}</td>
+      <td>{{ b.seats }}</td>
+      <td>{{ b.passenger_name }}</td>
+      <td>{{ b.booked_at }}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="5">No bookings yet.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}
+
+
