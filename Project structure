@@ -1,0 +1,22 @@
+bus_reservation_pro/
+├─ requirements.txt
+├─ README.md
+├─ config.py
+├─ init_db.py
+├─ models.py
+├─ app.py
+├─ gui_app.py
+├─ utils.py
+├─ static/
+│  └─ style.css
+└─ templates/
+   ├─ base.html
+   ├─ index.html
+   ├─ login.html
+   ├─ register.html
+   ├─ admin_dashboard.html
+   ├─ user_dashboard.html
+   ├─ bus_list.html
+   ├─ bus_form.html
+   ├─ book.html
+   └─ bookings.html
