@@ -20,6 +20,7 @@ from anywhere, at any time.
 Overall, a Bus Reservation System improves operational
 efficiency, supports scalability, and enhances the travel
 experience for both bus operators and passengers.
+
 **Features of Bus Reservation System:**
 A. Major Functional Modules
 1. User Module
@@ -104,11 +105,13 @@ B. Additional / Advanced Features
 • 24/7 helpdesk
 • AI chatbot for quick queries
 • Issue ticketing system
+
 **Technologies Used:**
 • Programming Language: Python
 • Database: SQLite
 • Libraries: sqlite3, datetime, os
 • Tools: VS Code , Git , GitHub, Jupyter Notebook
+
 **INSTALLATION AND SETUP:**
 • Prerequisites
 (a) Python 3.8+
@@ -125,6 +128,7 @@ c) Run the main program: python main.py
 • How to Run the Project
 Python main.py
 Use the on-screen menu options to navigate through modules.
+
 **• TESTING INSTRUCTIONS**
 Test modules one by one:
 • Bus addition
@@ -133,6 +137,7 @@ Test modules one by one:
 • User registration
 • Booking cancellation
 • Admin CRUD operation
+
 **MODULES COUNT:**
 Module
 No. Module Name
@@ -151,6 +156,7 @@ y
 12 admin_menu
 13 user_menu
 14 main
+
 **SCREENSHOTS:**
 <img width="1280" height="832" alt="Screenshot 2025-11-27 at 11 31 26 PM" src="https://github.com/user-attachments/assets/97d0d579-32e2-48b1-b6cc-6ec94b13d381" />
 <img width="627" height="338" alt="Screenshot 2025-11-27 at 11 31 47 PM" src="https://github.com/user-attachments/assets/368493d7-15b6-4d55-971b-e4b4367f6e92" />
